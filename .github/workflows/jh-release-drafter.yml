@@ -1,0 +1,45 @@
+name: JH Release Drafter
+
+on:
+  push:
+    branches:
+      - master-jethub
+
+jobs:
+  update_release_draft:
+    runs-on: ubuntu-latest
+    name: Release Drafter
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Find Next Version
+        id: version
+        run: |
+          declare -i newpost
+          latest=$(git describe --tags $(git rev-list --tags --max-count=1)) || latest=0.0.0
+          latestpre=$(echo "$latest" | awk '{split($0,a,"."); print a[1] "." a[2]}')
+          datepre=$(date --utc '+%Y.%m')
+
+
+          if [[ "$latestpre" == "$datepre" ]]; then
+              latestpost=$(echo "$latest" | awk '{split($0,a,"."); print a[3]}'| awk '{split($0,a,"-"); print a[1]}')
+              newpost=$latestpost+1
+          else
+              newpost=0
+          fi
+
+          echo Current version:    $latest
+          echo New target version: $datepre.$newpost-jethub
+          echo "version=${datepre}.${newpost}-jethub" >> "$GITHUB_OUTPUT"
+
+      - name: Run Release Drafter
+        uses: release-drafter/release-drafter@v5
+        with:
+          tag: ${{ steps.version.outputs.version }}
+          name: ${{ steps.version.outputs.version }}
+          config-name: jh-release-drafter.yml
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
