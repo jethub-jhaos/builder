@@ -12,21 +12,21 @@ runs:
       id: version
       run: |
         input=$(echo "${{ github.action_path }}" | cut -d"/" -f8 )
-        if [[ "${input}" == "master" ]] || [[ -z "${input}" ]]; then
+        if [[ "${input}" == "master" ]] || [[ "${input}" == "master-jethub" ]] || [[ -z "${input}" ]]; then
           input="latest"
         fi
         echo "version=${input}" >> "$GITHUB_OUTPUT"
 
-    - uses: home-assistant/actions/helpers/cas@master
+    - uses: jethubjhaos/actions/helpers/cas@master-jethub
 
     - shell: bash
       run: |
-        docker pull ghcr.io/home-assistant/amd64-builder:${{ steps.version.outputs.version }}
+        docker pull ghcr.io/jethubjhaos/amd64-builder:${{ steps.version.outputs.version }}
 
     - shell: bash
       run: |
         for j in {1..15}; do
-          if CAS_API_KEY= cas authenticate --silent --signerID notary@home-assistant.io docker://ghcr.io/home-assistant/amd64-builder:${{ steps.version.outputs.version }}; then
+          if CAS_API_KEY= cas authenticate --silent --signerID vb@jethome.ru docker://ghcr.io/jethubjhaos/amd64-builder:${{ steps.version.outputs.version }}; then
             exit 0
           fi
           sleep $((5 * j))
@@ -38,7 +38,7 @@ runs:
     - shell: bash
       id: builder
       run: |
-        builder=$(docker images ghcr.io/home-assistant/amd64-builder:${{ steps.version.outputs.version }} -q)
+        builder=$(docker images ghcr.io/jethubjhaos/amd64-builder:${{ steps.version.outputs.version }} -q)
         echo "id=$builder" >> "$GITHUB_OUTPUT"
 
     - shell: bash
@@ -52,7 +52,7 @@ runs:
             -v ~/.docker:/root/.docker \
             -v ${{ github.workspace }}:/data \
             --env-file "${{ github.action_path }}/env_file" \
-            ghcr.io/home-assistant/amd64-builder:${{ steps.version.outputs.version }} \
+            ghcr.io/jethubjhaos/amd64-builder:${{ steps.version.outputs.version }} \
             ${{ inputs.args }}
 
     - shell: bash
