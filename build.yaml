@@ -2,7 +2,10 @@ image: "jethubjhaos/{arch}-builder"
 shadow_repository: "ghcr.io/jethubjhaos"
 build_from:
   aarch64: "ghcr.io/jethubjhaos/aarch64-base:3.16"
+  armv7: "ghcr.io/jethubjhaos/armv7-base:3.16"
+  armhf: "ghcr.io/jethubjhaos/armhf-base:3.16"
   amd64: "ghcr.io/jethubjhaos/amd64-base:3.16"
+  i386: "ghcr.io/jethubjhaos/i386-base:3.16"
 codenotary:
   signer: vb@jethome.ru
   base_image: vb@jethome.ru
