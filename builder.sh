@@ -21,7 +21,7 @@ SELF_CACHE=false
 CUSTOM_CACHE_TAG=
 RELEASE_TAG=false
 GIT_REPOSITORY=
-GIT_BRANCH="master"
+GIT_BRANCH="master-jethub"
 TARGET=
 VERSION=
 VERSION_BASE=
@@ -34,6 +34,12 @@ BUILD_TYPE="addon"
 BUILD_TASKS=()
 BUILD_ERROR=()
 declare -A BUILD_MACHINE=(
+                          [jethub-d1]="aarch64" \
+                          [jethub-d1p]="aarch64" \
+                          [jethub-h1]="aarch64" \
+                          [jethub-h2]="aarch64" \
+                          [jethub-j80]="aarch64" \
+                          [jethub-j100]="aarch64" \
                           [generic-x86-64]="amd64" \
                           [intel-nuc]="amd64" \
                           [khadas-vim3]="aarch64" \
@@ -59,7 +65,7 @@ declare -A BUILD_MACHINE=(
 function print_help() {
     cat << EOF
 Hass.io build-env for ecosystem:
-docker run --rm homeassistant/{arch}-builder:latest [options]
+docker run --rm jethubjhaos/{arch}-builder:latest [options]
 
 Options:
   -h, --help
@@ -327,6 +333,8 @@ function run_build() {
         for i in "${push_images[@]}"; do
             for j in {1..3}; do
                 bashio::log.info "Start upload of ${i} (attempt #${j}/3)"
+                echo docker push "${i}"
+                docker push "${i}"
                 if docker push "${i}" > /dev/null 2>&1; then
                     bashio::log.info "Upload succeeded on attempt #${j}"
                     break
@@ -480,7 +488,7 @@ function build_addon() {
 
     # Set defaults build things
     if [ -z "$build_from" ]; then
-        build_from="homeassistant/${build_arch}-base:latest"
+        build_from="jethubjhaos/${build_arch}-base:latest"
     fi
 
     # Additional build args
